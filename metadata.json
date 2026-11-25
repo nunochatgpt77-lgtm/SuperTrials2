@@ -1,0 +1,8 @@
+{
+  "name": "SUPER TRIALS",
+  "description": "Gestor pessoal de períodos experimentais gratuitos e subscrições em Portugal, 100% offline com localStorage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

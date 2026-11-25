@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Super Trials</title>
+  <meta name="description" content="Lista de períodos experimentais gratuitos em Portugal e alertas de expiração." />
+  <meta property="og:title" content="Super Trials" />
+  <meta property="og:description" content="Lista de períodos experimentais gratuitos em Portugal e alertas de expiração." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      padding: 12px;
+      padding-bottom: 40px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      background-color: #1e1e1e;
+      border: 1px solid #2c2c2c;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .topbar h1 {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .topbar .sub {
+      font-size: 0.78rem;
+      color: #b0b0b0;
+      margin-top: 3px;
+    }
+
+    .btn-refresh {
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 1px solid #444444;
+      border-radius: 6px;
+      padding: 8px 11px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-refresh:hover {
+      background-color: #333333;
+    }
+
+    .btn-refresh:active {
+      background-color: #3a3a3a;
+    }
+
+    .btn-refresh:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .alerta-banner {
+      background-color: #3f1515;
+      border: 1px solid #ef4444;
+      color: #fecaca;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      display: none;
+    }
+
+    .alerta-banner strong {
+      color: #ffffff;
+    }
+
+    .sucesso-banner {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 536px;
+      z-index: 9999;
+      background-color: #15803d;
+      border: 2px solid #4ade80;
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    .sucesso-banner.visivel {
+      display: flex;
+    }
+
+    .sucesso-banner-close {
+      background: transparent;
+      border: none;
+      color: #bbf7d0;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      background-color: #1e1e1e;
+      color: #cccccc;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.86rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .nav-btn:hover {
+      color: #ffffff;
+    }
+
+    .nav-btn.active {
+      background-color: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    .menu-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .menu-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      background-color: #1e1e1e;
+      color: #cccccc;
+      border: 1px solid #333333;
+      border-radius: 6px;
+      padding: 7px 11px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      color: #ffffff;
+    }
+
+    .tab.active {
+      background-color: #3b82f6;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+
+    .lista {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item {
+      background-color: #1e1e1e;
+      border: 1px solid #2c2c2c;
+      border-left: 4px solid #22c55e;
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .item.streaming { border-left-color: #3b82f6; }
+    .item.musica { border-left-color: #a855f7; }
+    .item.ia { border-left-color: #22c55e; }
+    .item.urgente { border-left-color: #ef4444; background-color: #261717; }
+    .item.aviso { border-left-color: #f59e0b; }
+
+    .esq {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .logo-wrap {
+      width: 40px;
+      height: 40px;
+      background-color: #ffffff;
+      border-radius: 6px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .logo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-fallback {
+      color: #121212;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .info {
+      min-width: 0;
+    }
+
+    .nome-linha {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nome {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .novo-tag {
+      background-color: #f59e0b;
+      color: #111111;
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .duracao {
+      font-size: 0.78rem;
+      color: #4ade80;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    .duracao.vermelho { color: #f87171; }
+    .duracao.amarelo { color: #fbbf24; }
+
+    .nota {
+      font-size: 0.74rem;
+      color: #a3a3a3;
+      margin-top: 2px;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .btn-subscrever {
+      background-color: #16a34a;
+      color: #ffffff;
+      border: none;
+      font-size: 0.76rem;
+      font-weight: bold;
+      padding: 7px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-subscrever:hover {
+      background-color: #15803d;
+    }
+
+    .btn-subscrever:active {
+      background-color: #166534;
+    }
+
+    .btn-acao {
+      background-color: #2563eb;
+      color: #ffffff;
+      text-decoration: none;
+      border: none;
+      font-size: 0.76rem;
+      font-weight: bold;
+      padding: 7px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      cursor: pointer;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .btn-acao:hover {
+      background-color: #1d4ed8;
+    }
+
+    .btn-del {
+      background-color: #3f1d1d;
+      color: #fca5a5;
+      border: 1px solid #7f1d1d;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 7px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-del:hover {
+      background-color: #522323;
+    }
+
+    .form-box {
+      background-color: #1e1e1e;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-box h2 {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: #93c5fd;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .form-full {
+      grid-column: 1 / -1;
+    }
+
+    .custom-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      color: #b0b0b0;
+      margin-bottom: 3px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      background-color: #121212;
+      color: #ffffff;
+      border: 1px solid #444444;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.84rem;
+      color-scheme: dark;
+    }
+
+    .btn-add {
+      grid-column: 1 / -1;
+      background-color: #16a34a;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .btn-add:hover {
+      background-color: #15803d;
+    }
+
+    .btn-add:active {
+      background-color: #166534;
+    }
+
+    .status-msg {
+      grid-column: 1 / -1;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      font-weight: bold;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .status-msg.success {
+      background-color: #15803d;
+      border: 1px solid #22c55e;
+      color: #ffffff;
+    }
+
+    .status-msg.error {
+      background-color: #991b1b;
+      border: 1px solid #ef4444;
+      color: #ffffff;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div>
+        <h1>Super Trials</h1>
+        <div class="sub" id="estado-lista">A carregar...</div>
+      </div>
+      <button type="button" class="btn-refresh" id="btn-atualizar">Atualizar</button>
+    </header>
+
+    <div class="alerta-banner" id="alerta-banner" role="alert"></div>
+
+    <div class="sucesso-banner" id="alerta-sucesso" role="status" aria-live="polite">
+      <span id="alerta-sucesso-texto"></span>
+      <button type="button" class="sucesso-banner-close" id="alerta-sucesso-fechar" aria-label="Fechar aviso">✕</button>
+    </div>
+
+    <nav class="main-nav" aria-label="Navegação principal">
+      <button type="button" class="nav-btn active" id="nav-ofertas">🎯 Ofertas (15)</button>
+      <button type="button" class="nav-btn" id="nav-subs">⏰ Subscrições (4)</button>
+    </nav>
+
+    <!-- SECÇÃO 1: OFERTAS -->
+    <section id="secao-ofertas">
+      <div class="menu-tabs" id="menu-tabs" role="tablist" aria-label="Categorias">
+        <button type="button" class="tab active" data-cat="todos">Todos</button>
+        <button type="button" class="tab" data-cat="streaming">Streaming</button>
+        <button type="button" class="tab" data-cat="musica">Música</button>
+        <button type="button" class="tab" data-cat="ia">IA &amp; Apps</button>
+      </div>
+      <div class="lista" id="lista-apps"></div>
+    </section>
+
+    <!-- SECÇÃO 2: SUBSCRIÇÕES E ALERTAS -->
+    <section id="secao-subs" class="hidden">
+      <form class="form-box" id="form-sub" novalidate>
+        <h2>+ Registar Nova Adesão / Alerta</h2>
+        <div class="form-grid">
+          <div class="form-full">
+            <label for="sub-servico">Serviço / Aplicação</label>
+            <select id="sub-servico">
+              <option value="Amazon Prime Video|primevideo.com">Amazon Prime Video</option>
+              <option value="Apple TV+|tv.apple.com">Apple TV+</option>
+              <option value="Crunchyroll|crunchyroll.com">Crunchyroll</option>
+              <option value="SkyShowtime|skyshowtime.com">SkyShowtime</option>
+              <option value="Disney+|disneyplus.com">Disney+</option>
+              <option value="Netflix|netflix.com">Netflix</option>
+              <option value="HBO Max|max.com">HBO Max</option>
+              <option value="MUBI|mubi.com">MUBI</option>
+              <option value="Spotify Premium|spotify.com">Spotify Premium</option>
+              <option value="Deezer|deezer.com">Deezer</option>
+              <option value="Apple Music|music.apple.com">Apple Music</option>
+              <option value="YouTube Premium|youtube.com">YouTube Premium</option>
+              <option value="TIDAL|tidal.com">TIDAL</option>
+              <option value="Audible|audible.com">Audible</option>
+              <option value="Canva Pro|canva.com">Canva Pro</option>
+              <option value="Adobe Creative Cloud|adobe.com">Adobe Creative Cloud</option>
+              <option value="Microsoft 365|microsoft.com">Microsoft 365</option>
+              <option value="Super Duolingo|duolingo.com">Super Duolingo</option>
+              <option value="ChatGPT Plus|chatgpt.com">ChatGPT Plus</option>
+              <option value="outro|">Outro serviço...</option>
+            </select>
+          </div>
+
+          <div class="form-full hidden" id="box-outro">
+            <label for="sub-nome-custom">Nome do Serviço (e domínio ex: netflix.com)</label>
+            <div class="custom-row">
+              <input type="text" id="sub-nome-custom" placeholder="Ex: NordVPN" />
+              <input type="text" id="sub-dom-custom" placeholder="nordvpn.com" />
+            </div>
+          </div>
+
+          <div>
+            <label for="sub-inicio">Data de Adesão</label>
+            <input type="date" id="sub-inicio" />
+          </div>
+
+          <div>
+            <label for="sub-dias">Duração (dias)</label>
+            <select id="sub-dias">
+              <option value="7">7 dias</option>
+              <option value="14">14 dias</option>
+              <option value="30" selected>30 dias (1 mês)</option>
+              <option value="90">90 dias (3 meses)</option>
+              <option value="0">Manual</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="sub-fim">Data de Fim / Cancelar até</label>
+            <input type="date" id="sub-fim" />
+          </div>
+
+          <div>
+            <label for="sub-aviso">Alertar quantos dias antes?</label>
+            <select id="sub-aviso">
+              <option value="1">1 dia antes</option>
+              <option value="2" selected>2 dias antes</option>
+              <option value="3">3 dias antes</option>
+              <option value="5">5 dias antes</option>
+            </select>
+          </div>
+
+          <button type="button" class="btn-add" id="btn-guardar-sub">
+            Guardar Subscrição e Ativar Alerta
+          </button>
+
+          <div id="status-msg" class="status-msg hidden" role="status" aria-live="polite"></div>
+        </div>
+      </form>
+
+      <div class="lista" id="lista-subs"></div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var GIST_URL = "https://gist.githubusercontent.com/nunochatgpt77-lgtm/2f3287d8041ff7bc7554f7011758f367/raw/76cdd2b517a90609a1bf6a08a54780996f8d051b/gistfile1.txt";
+      var CACHE_KEY = "super_trials_old_cache";
+      var SUBS_KEY = "super_trials_minhas_subs";
+
+      var appsPadrao = [
+        { nome: "Amazon Prime Video", categoria: "streaming", duracao: "30 dias grátis", detalhe: "Catálogo completo + entregas Prime em Portugal.", dominio: "primevideo.com", url: "https://www.primevideo.com", novo: false },
+        { nome: "Apple TV+", categoria: "streaming", duracao: "7 dias grátis", detalhe: "3 meses grátis na compra de dispositivo Apple.", dominio: "tv.apple.com", url: "https://tv.apple.com/pt", novo: false },
+        { nome: "Crunchyroll", categoria: "streaming", duracao: "7 dias grátis", detalhe: "Planos Fan e Mega Fan sem anúncios.", dominio: "crunchyroll.com", url: "https://www.crunchyroll.com/pt-pt", novo: false },
+        { nome: "SkyShowtime", categoria: "streaming", duracao: "7 dias grátis", detalhe: "Plano Standard para novas contas elegíveis.", dominio: "skyshowtime.com", url: "https://www.skyshowtime.com/pt", novo: false },
+        { nome: "MUBI", categoria: "streaming", duracao: "7 dias grátis", detalhe: "Cinema de culto e independente.", dominio: "mubi.com", url: "https://mubi.com/pt", novo: false },
+        { nome: "Spotify Premium", categoria: "musica", duracao: "3 meses por 0 €", detalhe: "Campanha ativa até 31/12/2026 para novas contas.", dominio: "spotify.com", url: "https://www.spotify.com/pt-pt/premium/", novo: true },
+        { nome: "Deezer", categoria: "musica", duracao: "1 mês grátis", detalhe: "Áudio de alta qualidade e playlists sem anúncios.", dominio: "deezer.com", url: "https://www.deezer.com/pt/", novo: false },
+        { nome: "Apple Music", categoria: "musica", duracao: "1 mês grátis", detalhe: "Áudio lossless e espacial sem anúncios.", dominio: "music.apple.com", url: "https://music.apple.com/pt", novo: false },
+        { nome: "YouTube Premium", categoria: "musica", duracao: "1 mês grátis", detalhe: "Vídeos sem anúncios + YouTube Music.", dominio: "youtube.com", url: "https://www.youtube.com/premium", novo: false },
+        { nome: "TIDAL", categoria: "musica", duracao: "30 dias grátis", detalhe: "Som HiFi FLAC para novos subscritores.", dominio: "tidal.com", url: "https://tidal.com", novo: false },
+        { nome: "Audible", categoria: "musica", duracao: "30 dias grátis", detalhe: "Inclui 1 crédito gratuito na conta Amazon.", dominio: "audible.com", url: "https://www.audible.com", novo: false },
+        { nome: "Canva Pro", categoria: "ia", duracao: "30 dias grátis", detalhe: "Ferramentas de IA, remoção de fundo e templates.", dominio: "canva.com", url: "https://www.canva.com/pt_pt/pro/", novo: false },
+        { nome: "Adobe Creative Cloud", categoria: "ia", duracao: "7 dias grátis", detalhe: "Photoshop, Premiere Pro, Acrobat e IA Firefly.", dominio: "adobe.com", url: "https://www.adobe.com/pt/creativecloud.html", novo: false },
+        { nome: "Microsoft 365", categoria: "ia", duracao: "30 dias grátis", detalhe: "Office completo, Copilot IA e 1 TB OneDrive.", dominio: "microsoft.com", url: "https://www.microsoft.com/pt-pt/microsoft-365/try", novo: false },
+        { nome: "Super Duolingo", categoria: "ia", duracao: "7 a 14 dias grátis", detalhe: "Vidas ilimitadas e sem anúncios.", dominio: "duolingo.com", url: "https://www.duolingo.com", novo: false }
+      ];
+
+      var subsIniciais = [
+        { id: 1, nome: "SkyShowtime", dominio: "skyshowtime.com", inicio: "2026-09-02", duracao: 90, fim: "2026-12-02", aviso: 2 },
+        { id: 2, nome: "Disney+", dominio: "disneyplus.com", inicio: "2026-11-10", duracao: 30, fim: "2026-12-10", aviso: 2 },
+        { id: 3, nome: "Amazon Prime Video", dominio: "primevideo.com", inicio: "2026-11-12", duracao: 30, fim: "2026-12-12", aviso: 2 },
+        { id: 4, nome: "Apple TV+", dominio: "tv.apple.com", inicio: "2026-11-17", duracao: 30, fim: "2026-12-17", aviso: 2 }
+      ];
+
+      function lerCacheApps() {
+        try {
+          var raw = localStorage.getItem(CACHE_KEY);
+          if (!raw) return appsPadrao.slice();
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) && parsed.length > 0 ? parsed : appsPadrao.slice();
+        } catch (e) {
+          return appsPadrao.slice();
+        }
+      }
+
+      function lerSubscricoes() {
+        try {
+          var raw = localStorage.getItem(SUBS_KEY);
+          if (raw === null) return subsIniciais.slice();
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : subsIniciais.slice();
+        } catch (e) {
+          return subsIniciais.slice();
+        }
+      }
+
+      function getHojeLocalISO() {
+        var n = new Date();
+        var y = n.getFullYear();
+        var m = String(n.getMonth() + 1).padStart(2, "0");
+        var d = String(n.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + d;
+      }
+
+      function adicionarDiasISO(baseISO, dias) {
+        if (!baseISO || !dias) return baseISO;
+        var dt = new Date(baseISO + "T12:00:00");
+        if (isNaN(dt.getTime())) return baseISO;
+        dt.setDate(dt.getDate() + dias);
+        var y = dt.getFullYear();
+        var m = String(dt.getMonth() + 1).padStart(2, "0");
+        var d = String(dt.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + d;
+      }
+
+      function diasRestantes(dataFim) {
+        var partes = String(dataFim || "").split("-");
+        if (partes.length !== 3) return 999;
+        var y = parseInt(partes[0], 10);
+        var m = parseInt(partes[1], 10) - 1;
+        var d = parseInt(partes[2], 10);
+        var hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        var fim = new Date(y, m, d);
+        fim.setHours(0, 0, 0, 0);
+        return Math.round((fim.getTime() - hoje.getTime()) / 86400000);
+      }
+
+      function formatarDataPT(iso) {
+        if (!iso) return "--/--/----";
+        var partes = String(iso).split("-");
+        if (partes.length !== 3) return iso;
+        return partes[2] + "/" + partes[1] + "/" + partes[0];
+      }
+
+      function criarLogoWrap(nome, dominio) {
+        var wrap = document.createElement("div");
+        wrap.className = "logo-wrap";
+
+        var img = document.createElement("img");
+        img.alt = nome || "";
+        img.src = "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(dominio || "google.com") + "&sz=128";
+        img.addEventListener("error", function () {
+          wrap.innerHTML = "";
+          var fallback = document.createElement("span");
+          fallback.className = "logo-fallback";
+          fallback.textContent = (nome || "?").charAt(0).toUpperCase();
+          wrap.appendChild(fallback);
+        });
+
+        wrap.appendChild(img);
+        return wrap;
+      }
+
+      var dadosAtuais = lerCacheApps();
+      var minhasSubs = lerSubscricoes();
+      var filtroAtual = "todos";
+      var statusTimer = null;
+      var sucessoBannerTimer = null;
+      var isSaving = false;
+      var lastSaveTs = 0;
+
+      var elEstado = document.getElementById("estado-lista");
+      var elBtnAtualizar = document.getElementById("btn-atualizar");
+      var elAlertaBanner = document.getElementById("alerta-banner");
+      var elAlertaSucesso = document.getElementById("alerta-sucesso");
+      var elAlertaSucessoTexto = document.getElementById("alerta-sucesso-texto");
+      var elAlertaSucessoFechar = document.getElementById("alerta-sucesso-fechar");
+      var elNavOfertas = document.getElementById("nav-ofertas");
+      var elNavSubs = document.getElementById("nav-subs");
+      var elSecaoOfertas = document.getElementById("secao-ofertas");
+      var elSecaoSubs = document.getElementById("secao-subs");
+      var elMenuTabs = document.getElementById("menu-tabs");
+      var elListaApps = document.getElementById("lista-apps");
+      var elFormSub = document.getElementById("form-sub");
+      var elSubServico = document.getElementById("sub-servico");
+      var elBoxOutro = document.getElementById("box-outro");
+      var elSubNomeCustom = document.getElementById("sub-nome-custom");
+      var elSubDomCustom = document.getElementById("sub-dom-custom");
+      var elSubInicio = document.getElementById("sub-inicio");
+      var elSubDias = document.getElementById("sub-dias");
+      var elSubFim = document.getElementById("sub-fim");
+      var elSubAviso = document.getElementById("sub-aviso");
+      var elBtnGuardar = document.getElementById("btn-guardar-sub");
+      var elStatusMsg = document.getElementById("status-msg");
+      var elListaSubs = document.getElementById("lista-subs");
+
+      var hojeStr = getHojeLocalISO();
+      elSubInicio.value = hojeStr;
+      elSubFim.value = adicionarDiasISO(hojeStr, parseInt(elSubDias.value, 10));
+
+      function extrairDiasDuracao(texto) {
+        var str = String(texto || "").toLowerCase();
+        var matchMes = str.match(/(\d+)\s*m[eê]s/);
+        if (matchMes) {
+          return Math.max(1, parseInt(matchMes[1], 10) * 30);
+        }
+        var matchesDias = str.match(/(\d+)\s*dias?/g);
+        if (matchesDias && matchesDias.length > 0) {
+          var ultimo = matchesDias[matchesDias.length - 1].match(/\d+/);
+          if (ultimo) return Math.max(1, parseInt(ultimo[0], 10));
+        }
+        var matchRange = str.match(/\d+\s*a\s*(\d+)/);
+        if (matchRange) {
+          return Math.max(1, parseInt(matchRange[1], 10));
+        }
+        return 30;
+      }
+
+      function mostrarAlertaSucesso(mensagem) {
+        if (sucessoBannerTimer !== null) {
+          clearTimeout(sucessoBannerTimer);
+          sucessoBannerTimer = null;
+        }
+        elAlertaSucessoTexto.textContent = mensagem;
+        elAlertaSucesso.classList.add("visivel");
+
+        sucessoBannerTimer = setTimeout(function () {
+          elAlertaSucesso.classList.remove("visivel");
+          elAlertaSucessoTexto.textContent = "";
+          sucessoBannerTimer = null;
+        }, 5000);
+      }
+
+      function mostrarStatus(mensagem, tipo) {
+        if (statusTimer !== null) {
+          clearTimeout(statusTimer);
+          statusTimer = null;
+        }
+        elStatusMsg.textContent = mensagem;
+        elStatusMsg.className = "status-msg " + (tipo === "error" ? "error" : "success");
+        elStatusMsg.setAttribute("role", tipo === "error" ? "alert" : "status");
+
+        statusTimer = setTimeout(function () {
+          elStatusMsg.className = "status-msg hidden";
+          elStatusMsg.textContent = "";
+          statusTimer = null;
+        }, 5000);
+      }
+
+      function mudarSecao(secao) {
+        var emOfertas = secao === "ofertas";
+        elSecaoOfertas.classList.toggle("hidden", !emOfertas);
+        elSecaoSubs.classList.toggle("hidden", emOfertas);
+        elNavOfertas.classList.toggle("active", emOfertas);
+        elNavSubs.classList.toggle("active", !emOfertas);
+        if (!emOfertas) {
+          desenharSubscricoes();
+        }
+      }
+
+      function calcularFimAutomatico() {
+        var inicio = elSubInicio.value;
+        var dias = parseInt(elSubDias.value, 10);
+        if (!inicio || dias === 0) return;
+        elSubFim.value = adicionarDiasISO(inicio, dias);
+      }
+
+      function verificarAlertas() {
+        elNavSubs.textContent = "⏰ Subscrições (" + minhasSubs.length + ")";
+
+        var urgentes = minhasSubs.filter(function (s) {
+          return diasRestantes(s.fim) <= (s.aviso || 2);
+        });
+
+        if (urgentes.length > 0) {
+          elAlertaBanner.innerHTML = "";
+          var prefixo = document.createTextNode("⚠️ ");
+          var strong = document.createElement("strong");
+          strong.textContent = "Alerta de Expiração:";
+          var resumo = urgentes.map(function (u) {
+            var d = diasRestantes(u.fim);
+            if (d < 0) return u.nome + " (expirou)";
+            if (d === 0) return u.nome + " (acaba HOJE!)";
+            return u.nome + " (faltam " + d + "d)";
+          }).join(" • ");
+          elAlertaBanner.appendChild(prefixo);
+          elAlertaBanner.appendChild(strong);
+          elAlertaBanner.appendChild(document.createTextNode(" " + resumo));
+          elAlertaBanner.style.display = "block";
+        } else {
+          elAlertaBanner.style.display = "none";
+          elAlertaBanner.textContent = "";
+        }
+      }
+
+      function desenharSubscricoes() {
+        elListaSubs.innerHTML = "";
+
+        var ordenadas = minhasSubs.slice().sort(function (a, b) {
+          return String(a.fim || "").localeCompare(String(b.fim || ""));
+        });
+
+        ordenadas.forEach(function (sub) {
+          var falta = diasRestantes(sub.fim);
+          var classeItem = "";
+          var classeTexto = "";
+          var textoFalta = "Faltam " + falta + " dias";
+
+          if (falta < 0) {
+            classeItem = "urgente";
+            classeTexto = "vermelho";
+            textoFalta = "Expirou há " + Math.abs(falta) + " dia(s)";
+          } else if (falta === 0) {
+            classeItem = "urgente";
+            classeTexto = "vermelho";
+            textoFalta = "ACABA HOJE — Cancelar já!";
+          } else if (falta <= (sub.aviso || 2)) {
+            classeItem = "urgente";
+            classeTexto = "vermelho";
+            textoFalta = "ALERTA: Faltam " + falta + " dia(s)!";
+          } else if (falta <= 7) {
+            classeItem = "aviso";
+            classeTexto = "amarelo";
+          }
+
+          var item = document.createElement("div");
+          item.className = "item " + classeItem;
+
+          var esq = document.createElement("div");
+          esq.className = "esq";
+          esq.appendChild(criarLogoWrap(sub.nome, sub.dominio));
+
+          var info = document.createElement("div");
+          info.className = "info";
+
+          var elNome = document.createElement("div");
+          elNome.className = "nome";
+          elNome.textContent = sub.nome;
+
+          var elDuracao = document.createElement("div");
+          elDuracao.className = "duracao " + classeTexto;
+          elDuracao.textContent = textoFalta;
+
+          var elNota = document.createElement("div");
+          elNota.className = "nota";
+          elNota.textContent = "Adesão: " + formatarDataPT(sub.inicio) + " • Fim: " + formatarDataPT(sub.fim);
+
+          info.appendChild(elNome);
+          info.appendChild(elDuracao);
+          info.appendChild(elNota);
+          esq.appendChild(info);
+
+          var btnDel = document.createElement("button");
+          btnDel.type = "button";
+          btnDel.className = "btn-del";
+          btnDel.textContent = "Apagar";
+          btnDel.addEventListener("click", function () {
+            removerSub(sub.id);
+          });
+
+          item.appendChild(esq);
+          item.appendChild(btnDel);
+          elListaSubs.appendChild(item);
+        });
+      }
+
+      function removerSub(id) {
+        try {
+          minhasSubs = minhasSubs.filter(function (s) {
+            return s.id !== id;
+          });
+          localStorage.setItem(SUBS_KEY, JSON.stringify(minhasSubs));
+          desenharSubscricoes();
+          verificarAlertas();
+        } catch (err) {
+          mostrarStatus("Erro ao apagar subscrição: " + (err && err.message ? err.message : err), "error");
+        }
+      }
+
+      function adicionarSubscricao(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        var agora = Date.now();
+        if (isSaving || agora - lastSaveTs < 350) {
+          return;
+        }
+        isSaving = true;
+        lastSaveTs = agora;
+
+        try {
+          var sel = elSubServico.value;
+          var nome = "";
+          var dominio = "";
+
+          if (sel.indexOf("outro|") === 0) {
+            nome = elSubNomeCustom.value.trim();
+            dominio = elSubDomCustom.value.trim() || "google.com";
+            if (!nome) {
+              mostrarStatus("Preenche o nome do serviço antes de guardar.", "error");
+              return;
+            }
+          } else {
+            var partes = sel.split("|");
+            nome = (partes[0] || "").trim();
+            dominio = (partes[1] || "").trim() || "google.com";
+          }
+
+          var inicio = elSubInicio.value || getHojeLocalISO();
+          var duracao = parseInt(elSubDias.value, 10) || 0;
+          var fim = elSubFim.value || (duracao > 0 ? adicionarDiasISO(inicio, duracao) : "");
+          var aviso = parseInt(elSubAviso.value, 10) || 2;
+
+          elSubInicio.value = inicio;
+          if (fim) elSubFim.value = fim;
+
+          if (!fim) {
+            mostrarStatus("Seleciona a data de fim / cancelar até.", "error");
+            return;
+          }
+
+          var novaSub = {
+            id: agora,
+            nome: nome,
+            dominio: dominio,
+            inicio: inicio,
+            duracao: duracao,
+            fim: fim,
+            aviso: aviso
+          };
+
+          var novaLista = minhasSubs.concat([novaSub]);
+          try {
+            localStorage.setItem(SUBS_KEY, JSON.stringify(novaLista));
+          } catch (storageErr) {}
+          minhasSubs = novaLista;
+
+          elSubNomeCustom.value = "";
+          elSubDomCustom.value = "";
+
+          desenharSubscricoes();
+          verificarAlertas();
+          mostrarStatus("✅ Sucesso! Subscrição guardada e alerta ativado na aplicação!", "success");
+          mostrarAlertaSucesso("✅ Sucesso! Subscrição de \"" + nome + "\" guardada e alerta ativado (" + aviso + "d antes).");
+        } catch (err) {
+          var msg = err && err.message ? err.message : "Erro ao guardar subscrição.";
+          mostrarStatus("Erro ao guardar: " + msg, "error");
+        } finally {
+          isSaving = false;
+        }
+      }
+
+      function subscreverServico(app) {
+        var agora = Date.now();
+        if (isSaving || agora - lastSaveTs < 350) {
+          return;
+        }
+        isSaving = true;
+        lastSaveTs = agora;
+
+        try {
+          var inicio = getHojeLocalISO();
+          var duracao = extrairDiasDuracao(app.duracao);
+          var fim = adicionarDiasISO(inicio, duracao);
+
+          var novaSub = {
+            id: agora,
+            nome: app.nome,
+            dominio: app.dominio || "google.com",
+            inicio: inicio,
+            duracao: duracao,
+            fim: fim,
+            aviso: 2
+          };
+
+          var novaLista = minhasSubs.concat([novaSub]);
+          try {
+            localStorage.setItem(SUBS_KEY, JSON.stringify(novaLista));
+          } catch (storageErr) {}
+          minhasSubs = novaLista;
+
+          desenharSubscricoes();
+          verificarAlertas();
+          mostrarStatus("✅ Sucesso! Subscrição guardada e alerta ativado na aplicação!", "success");
+          mostrarAlertaSucesso("✅ Sucesso! Serviço \"" + app.nome + "\" subscrito e alerta ativado (fim em " + formatarDataPT(fim) + ").");
+        } catch (err) {
+          var msg = err && err.message ? err.message : "Erro ao subscrever serviço.";
+          mostrarStatus("Erro ao subscrever: " + msg, "error");
+        } finally {
+          isSaving = false;
+        }
+      }
+
+      function desenharLista(cat) {
+        filtroAtual = cat;
+        elListaApps.innerHTML = "";
+
+        var itens = cat === "todos"
+          ? dadosAtuais
+          : dadosAtuais.filter(function (a) { return a.categoria === cat; });
+
+        itens.forEach(function (app) {
+          var el = document.createElement("div");
+          el.className = "item " + (app.categoria || "");
+
+          var esq = document.createElement("div");
+          esq.className = "esq";
+          esq.appendChild(criarLogoWrap(app.nome, app.dominio));
+
+          var info = document.createElement("div");
+          info.className = "info";
+
+          var nomeLinha = document.createElement("div");
+          nomeLinha.className = "nome-linha";
+
+          var spanNome = document.createElement("span");
+          spanNome.className = "nome";
+          spanNome.textContent = app.nome;
+          nomeLinha.appendChild(spanNome);
+
+          if (app.novo) {
+            var spanNovo = document.createElement("span");
+            spanNovo.className = "novo-tag";
+            spanNovo.textContent = "NOVO";
+            nomeLinha.appendChild(spanNovo);
+          }
+
+          var elDuracao = document.createElement("div");
+          elDuracao.className = "duracao";
+          elDuracao.textContent = app.duracao;
+
+          var elNota = document.createElement("div");
+          elNota.className = "nota";
+          elNota.textContent = app.detalhe;
+
+          info.appendChild(nomeLinha);
+          info.appendChild(elDuracao);
+          info.appendChild(elNota);
+          esq.appendChild(info);
+
+          var acoes = document.createElement("div");
+          acoes.className = "card-actions";
+
+          var btnSub = document.createElement("button");
+          btnSub.type = "button";
+          btnSub.className = "btn-subscrever";
+          btnSub.textContent = "Subscrever";
+          btnSub.addEventListener("click", function () {
+            subscreverServico(app);
+          });
+
+          var link = document.createElement("a");
+          link.className = "btn-acao";
+          link.href = app.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Registar";
+
+          acoes.appendChild(btnSub);
+          acoes.appendChild(link);
+
+          el.appendChild(esq);
+          el.appendChild(acoes);
+          elListaApps.appendChild(el);
+        });
+      }
+
+      async function carregarTrials(manual) {
+        elBtnAtualizar.disabled = true;
+        if (manual) {
+          elEstado.textContent = "A atualizar...";
+        }
+
+        try {
+          var res = await fetch(GIST_URL + "?t=" + Date.now());
+          if (!res.ok) throw new Error("Erro HTTP");
+          var json = await res.json();
+          if (Array.isArray(json) && json.length > 0) {
+            dadosAtuais = json;
+            try {
+              localStorage.setItem(CACHE_KEY, JSON.stringify(json));
+            } catch (e) {}
+            desenharLista(filtroAtual);
+            elNavOfertas.textContent = "🎯 Ofertas (" + dadosAtuais.length + ")";
+            elEstado.textContent = dadosAtuais.length + " trials disponíveis • Online";
+            if (manual) {
+              mostrarAlertaSucesso("✅ Sucesso! Ofertas atualizadas (" + dadosAtuais.length + " trials disponíveis).");
+            }
+            return;
+          }
+          throw new Error("Dados inválidos");
+        } catch (e) {
+          dadosAtuais = lerCacheApps();
+          desenharLista(filtroAtual);
+          elNavOfertas.textContent = "🎯 Ofertas (" + dadosAtuais.length + ")";
+          elEstado.textContent = dadosAtuais.length + " trials disponíveis • Modo Local";
+          if (manual) {
+            mostrarAlertaSucesso("✅ Sucesso! Lista atualizada em modo local (" + dadosAtuais.length + " trials disponíveis).");
+          }
+        } finally {
+          elBtnAtualizar.disabled = false;
+        }
+      }
+
+      // Eventos
+      elBtnAtualizar.addEventListener("click", function () {
+        carregarTrials(true);
+      });
+
+      elNavOfertas.addEventListener("click", function () {
+        mudarSecao("ofertas");
+      });
+
+      elNavSubs.addEventListener("click", function () {
+        mudarSecao("subs");
+      });
+
+      elMenuTabs.addEventListener("click", function (e) {
+        var btn = e.target.closest(".tab");
+        if (!btn) return;
+        var cat = btn.getAttribute("data-cat") || "todos";
+        var tabs = elMenuTabs.querySelectorAll(".tab");
+        for (var i = 0; i < tabs.length; i++) {
+          tabs[i].classList.remove("active");
+        }
+        btn.classList.add("active");
+        desenharLista(cat);
+      });
+
+      elSubServico.addEventListener("change", function () {
+        var isOutro = elSubServico.value.indexOf("outro|") === 0;
+        elBoxOutro.classList.toggle("hidden", !isOutro);
+      });
+
+      elSubInicio.addEventListener("change", calcularFimAutomatico);
+      elSubDias.addEventListener("change", calcularFimAutomatico);
+
+      elFormSub.addEventListener("submit", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      elBtnGuardar.addEventListener("click", adicionarSubscricao);
+
+      elAlertaSucessoFechar.addEventListener("click", function () {
+        if (sucessoBannerTimer !== null) {
+          clearTimeout(sucessoBannerTimer);
+          sucessoBannerTimer = null;
+        }
+        elAlertaSucesso.classList.remove("visivel");
+        elAlertaSucessoTexto.textContent = "";
+      });
+
+      // Arranque inicial
+      desenharLista("todos");
+      desenharSubscricoes();
+      verificarAlertas();
+      carregarTrials(false);
+    })();
+  </script>
+</body>
+</html>
